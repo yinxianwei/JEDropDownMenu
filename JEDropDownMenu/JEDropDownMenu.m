@@ -77,30 +77,59 @@
  1. 背景
  2. tabview从上至下
  */
-    
+    _bgImageView.alpha = 1.0f;
+    if (_bgControl.hidden == NO) {
+        [UIView animateWithDuration:0.2 animations:^{
+            [self tabBGimageViewFrame];
+        } completion:^(BOOL finished) {
+            [self showAnimation];
+        }];
+    }
+    else{
+        [self tabBGimageViewFrame];
+        [self showAnimation];
+    }
+}
+
+- (void)tabBGimageViewFrame{
+    _tabBgImageView.frame = CGRectMake(0, -_tabBgImageView.frame.size.height, _tabBgImageView.frame.size.width, _tabBgImageView.frame.size.height);
+}
+
+- (void)showAnimation{
     if ([self.dataSouce titltHaveLoswerAtIndex:self.selectRow]) {
         self.leftTableView.frame = CGRectMake(self.leftTableView.frame.origin.x, self.leftTableView.frame.origin.y, self.frame.size.width/[self.dataSouce numberOfRowDropDownMenu:self], self.leftTableView.frame.size.height);
-            _rightTableView.hidden = NO;
+        _rightTableView.hidden = NO;
     }
     else{
         self.leftTableView.frame = CGRectMake(self.leftTableView.frame.origin.x, self.leftTableView.frame.origin.y, self.frame.size.width, self.leftTableView.frame.size.height);
-            _rightTableView.hidden = YES;
+        _rightTableView.hidden = YES;
     }
     _bgControl.hidden = NO;
     _leftTableView.hidden = NO;
-
-   
     
     [_leftTableView reloadData];
     [_rightTableView reloadData];
-
     
+    
+    [UIView animateWithDuration:0.28 animations:^{
+        _tabBgImageView.frame = CGRectMake(0, 0, _tabBgImageView.frame.size.width, _tabBgImageView.frame.size.height);
+    } completion:^(BOOL finished) {
+        
+    }];
+}
+- (void)dismissAnimation{
+
 }
 
 - (void)dismiss{
-    _bgControl.hidden = YES;
     _selectRow = -1;
-
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        [self tabBGimageViewFrame];
+        _bgImageView.alpha = 0.0f;
+    } completion:^(BOOL finished) {
+        _bgControl.hidden = YES;
+    }];
 }
 
 - (void)willMoveToSuperview:(UIView *)newSuperview{
@@ -179,22 +208,18 @@
         }
         else{
             cell.textLabel.textColor = [UIColor blackColor];
-            cell.selected =  NO;
         }
     }
     else if (tableView == self.rightTableView){
       cell.textLabel.text = [self.dataSouce dropDownMenu:self rightTitleAtIndexPath:[NSIndexPath indexPathForRow:indexpath2.section inSection:self.selectRow] titleRow:indexPath.row];
-        if (indexPath.row == indexpath2.row) {
-//            NSLog(@"----->>%ld",[self.selectRightArray[self.selectRow] section]);
-            NSIndexPath *indexpath3 = [self.leftTableView indexPathForSelectedRow];
-            NSLog(@"---%ld",indexpath3.row);
-            if (indexpath2.section == indexpath3.row) {
-                cell.accessoryType = UITableViewCellAccessoryCheckmark;
-                NSLog(@"index2:%ld indexrow:%ld self:%ld",indexpath2.section,indexPath.row,self.selectSection);
-            }
-            
-        }else
-        cell.accessoryType = UITableViewCellAccessoryNone;
+        if (indexPath.row == indexpath2.row && [self.selectRightArray[self.selectRow] section] == indexpath2.section) {
+
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+
+        }
+        else
+            cell.accessoryType = UITableViewCellAccessoryNone;
+
     }
  
     return cell;
@@ -207,10 +232,8 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     NSIndexPath *indexpath2 = self.selectArray[self.selectRow];
-
     
     if (tableView == self.leftTableView) {
         self.selectSection = indexPath.row;
@@ -218,18 +241,9 @@
         [self.selectArray replaceObjectAtIndex:self.selectRow withObject:[NSIndexPath indexPathForRow:indexpath2.row inSection:indexPath.row]];
         
         //展开
-        if ([self.dataSouce leftRowHaveLowerAtTitleIndex:self.selectRow leftRow:indexPath.row]) {
-            if ([self.dataSouce titltHaveLoswerAtIndex:self.selectRow]) {
-                self.rightTableView.hidden = NO;
-                [self.rightTableView reloadData];
-            }else{
-                
-                if ([self.delegate respondsToSelector:@selector(dropDownMenu:didSelctedOfTitleIndex:leftRow:rightRow:isHaveLower:isSeparate:)]) {
-                    
-                    [self.delegate dropDownMenu:self didSelctedOfTitleIndex:self.selectRow leftRow:indexPath.row rightRow:0 isHaveLower:NO isSeparate:NO];
-                }
-                [self dismiss];
-            }
+        if ([self.dataSouce leftRowHaveLowerAtTitleIndex:self.selectRow leftRow:indexPath.row] && [self.dataSouce titltHaveLoswerAtIndex:self.selectRow]) {
+            self.rightTableView.hidden = NO;
+            [self.rightTableView reloadData];
         }
         else{
             //直接调用代理
@@ -248,10 +262,10 @@
 
         indexpath2 = [NSIndexPath indexPathForRow:indexPath.row inSection:indexpath2.section];
         [self.selectArray replaceObjectAtIndex:self.selectRow withObject:indexpath2];
-        NSLog(@"--<<%ld",indexpath2.section);
+
         [self.selectRightArray replaceObjectAtIndex:self.selectRow withObject:[NSIndexPath indexPathForRow:indexPath.row inSection:indexpath2.section]];
         
-//        代理
+//代理
      
         if ([self.delegate respondsToSelector:@selector(dropDownMenu:didSelctedOfTitleIndex:leftRow:rightRow:isHaveLower:isSeparate:)]) {
             
