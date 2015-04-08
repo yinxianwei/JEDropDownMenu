@@ -97,7 +97,7 @@
         [self show];
     }
     
-    if ([self.delegate respondsToSelector:@selector(dropDownMenu:titleAtIndex:)]) {
+    if ([self.delegate respondsToSelector:@selector(dropDownMenu:didSelctedOfTitleIndex:)]) {
         [self.delegate dropDownMenu:sender didSelctedOfTitleIndex:index];
     }
 }
