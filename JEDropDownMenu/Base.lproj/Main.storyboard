@@ -43,7 +43,38 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="408" y="343"/>
+            <point key="canvasLocation" x="136" y="267"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="IDv-oA-L5a">
+            <objects>
+                <viewController id="yKe-PJ-O3q" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="gop-Gx-DHw"/>
+                        <viewControllerLayoutGuide type="bottom" id="7AL-bT-uoc"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="PrI-Ah-O29">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tD7-Sd-6se">
+                                <rect key="frame" x="117" y="157" width="130" height="45"/>
+                                <color key="backgroundColor" red="0.77014283459595956" green="0.77014283459595956" blue="0.77014283459595956" alpha="1" colorSpace="calibratedRGB"/>
+                                <inset key="imageEdgeInsets" minX="110" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                <state key="normal" title="Button" image="btn_down">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="w1x-xz-Y1f" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="367" y="706"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="btn_down" width="22" height="22"/>
+    </resources>
 </document>

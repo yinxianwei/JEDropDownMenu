@@ -63,8 +63,11 @@
 @property (nonatomic, weak) id<JEDropDownMenuDelegate>delegate;
 @property (nonatomic, weak) id<JEDropDownMenuDataSouce>dataSouce;
 
+@property (nonatomic, strong) UIImageView *titleBgImageView;
 
+@property (nonatomic, strong) UIImageView *tabBgImageView;
 
+@property (nonatomic, strong) UIImageView *bgImageView;
 /*
  1. 数据源
  2. 标题列数

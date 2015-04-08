@@ -25,7 +25,6 @@
     
     [self.view addSubview:menu];
     
-    
 }
 
 
@@ -74,7 +73,7 @@
 }
 
 - (NSInteger)numberOfRowDropDownMenu:(JEDropDownMenu *)menu{
-    return 3;
+    return 4;
 }
 
 - (void)dropDownMenu:(JEDropDownMenu *)menu didSelctedOfTitleIndex:(NSInteger)index{

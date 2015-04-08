@@ -21,12 +21,10 @@
 
 @property (nonatomic, assign) NSInteger selectSection;
 
-@property (nonatomic, strong) UIImageView *tabBgImageView;
-@property (nonatomic, strong) UIImageView *bgImageView;
-
-
 @property (nonatomic, strong) NSMutableArray *selectArray;
 @property (nonatomic, strong) NSMutableArray *selectRightArray;
+
+
 @end
 
 @implementation JEDropDownMenu
@@ -36,15 +34,32 @@
     NSInteger row = [self.dataSouce numberOfRowDropDownMenu:self];
     CGFloat titleHeight = self.frame.size.height;
     CGFloat titleWidth  = self.frame.size.width/row;
+    
+    self.titleBgImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    self.titleBgImageView.backgroundColor = [UIColor whiteColor];
+    [self addSubview:self.titleBgImageView];
+    
     for (int i = 0; i<row; i++) {
         CGFloat xPos = i * titleWidth;
         UIButton *button = [[UIButton alloc]initWithFrame:CGRectMake(xPos, 0, titleWidth, titleHeight)];
         
-        button.tag = i;
+        button.tag = i+100;
         
         [button addTarget:self action:@selector(titleCilck:) forControlEvents:UIControlEventTouchUpInside];
         [button setTitle:[self.dataSouce dropDownMenu:self titleAtIndex:i] forState:UIControlStateNormal];
-        button.backgroundColor = [UIColor blackColor];
+        UIImage *image = [UIImage imageNamed:@"btn_down"];
+        [button setImage:image forState:UIControlStateNormal];
+
+        [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [button setImageEdgeInsets:UIEdgeInsetsMake(0, titleWidth - image.size.width, 0, 0)];
+        [button setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, image.size.width)];
+        
+//        button.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+//        button.layer.borderWidth = 1.0f;
+        
+        [button setBackgroundImage:[UIImage imageNamed:@"LLMutiBtn"] forState:UIControlStateNormal];
+        
+        
         [self addSubview:button];
     }
 }
@@ -53,22 +68,42 @@
 - (void)titleCilck:(id)sender{
     
     UIButton *button = (UIButton *)sender;
+    NSInteger index = button.tag -100;
+//    TODO: 三角动画
+    /*
+     1. 第一次选中三角向上
+     2. 第二次选中先把上次的旋转
+     
+     */
     
-    if (button.tag == self.selectRow) {
+    
+    if (index == self.selectRow) {
+        [UIView animateWithDuration:0.2 animations:^{
+            button.imageView.transform = CGAffineTransformIdentity;
+        }];
+
         [self dismiss];
     }else{
-        self.selectRow = button.tag;
+        if (self.selectRow>=0) {
+            UIButton *oldBtn = (UIButton *)[self viewWithTag:self.selectRow+100];
+            [UIView animateWithDuration:0.2 animations:^{
+                oldBtn.imageView.transform = CGAffineTransformIdentity;
+            }];
+        }
+        [UIView animateWithDuration:0.2 animations:^{
+            button.imageView.transform = CGAffineTransformMakeRotation(M_PI);
+        }];
+        self.selectRow = index;
         [self show];
     }
     
     if ([self.delegate respondsToSelector:@selector(dropDownMenu:titleAtIndex:)]) {
-        [self.delegate dropDownMenu:sender didSelctedOfTitleIndex:button.tag];
+        [self.delegate dropDownMenu:sender didSelctedOfTitleIndex:index];
     }
-    
-    
-//    选择第一个
-    
 }
+
+
+
 
 - (void)show{
     
@@ -203,11 +238,19 @@
         else{
             cell.accessoryType = UITableViewCellAccessoryNone;
         }
+
+        
         if (indexPath.row == indexpath2.section) {
             cell.textLabel.textColor = [UIColor blueColor];
+            if (![self.dataSouce titltHaveLoswerAtIndex:self.selectRow]) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            }
         }
         else{
             cell.textLabel.textColor = [UIColor blackColor];
+            if (![self.dataSouce titltHaveLoswerAtIndex:self.selectRow]) {
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
         }
     }
     else if (tableView == self.rightTableView){
