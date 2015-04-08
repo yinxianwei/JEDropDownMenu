@@ -115,7 +115,7 @@
     _bgImageView.alpha = 1.0f;
     if (_bgControl.hidden == NO) {
         [UIView animateWithDuration:0.2 animations:^{
-            [self tabBGimageViewFrame];
+            _tabBgImageView.frame = CGRectMake(0, -150, _tabBgImageView.frame.size.width, _tabBgImageView.frame.size.height);
         } completion:^(BOOL finished) {
             [self showAnimation];
         }];
