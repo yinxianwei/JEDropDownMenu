@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController,DropDownMenuDataSouce,DropDownMenuDelagete {
+class ViewController: UIViewController,DropDownMenuDataSouce,DropDownMenuDelegate {
     
     var reservationArray:NSMutableArray = [];
     

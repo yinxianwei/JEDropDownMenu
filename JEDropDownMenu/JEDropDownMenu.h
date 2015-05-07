@@ -14,7 +14,7 @@
 
 @class JEDropDownMenu,JEIndexModel;
 
-@protocol DropDownMenuDelagete <NSObject>
+@protocol DropDownMenuDelegate <NSObject>
 
 @optional
 //左侧
@@ -65,7 +65,7 @@
 
 @property (nonatomic, assign) id<DropDownMenuDataSouce> dataSouce;
 
-@property (nonatomic, assign) id<DropDownMenuDelagete> delegate;
+@property (nonatomic, assign) id<DropDownMenuDelegate> delegate;
 
 @property (nonatomic, strong) UIImageView *bgImageView;
 @property (nonatomic, strong) UIImageView *titleBgImageView;

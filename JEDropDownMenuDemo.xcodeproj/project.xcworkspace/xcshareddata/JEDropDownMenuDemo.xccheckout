@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>F506D20D-B29A-4B18-9013-4224AF9195E0</string>
+	<key>IDESourceControlProjectName</key>
+	<string>JEDropDownMenuDemo</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>FBAA7A7434C1EBC8D3C42099CBAAEF0F05E3B109</key>
+		<string>https://github.com/yinxianwei/JEDropDownMenu.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>JEDropDownMenuDemo.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>FBAA7A7434C1EBC8D3C42099CBAAEF0F05E3B109</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/yinxianwei/JEDropDownMenu.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>FBAA7A7434C1EBC8D3C42099CBAAEF0F05E3B109</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>FBAA7A7434C1EBC8D3C42099CBAAEF0F05E3B109</string>
+			<key>IDESourceControlWCCName</key>
+			<string>JEDropDownMenuDemo</string>
+		</dict>
+	</array>
+</dict>
+</plist>
