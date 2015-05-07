@@ -1,84 +1,97 @@
 //
 //  JEDropDownMenu.h
-//  JEDropDownMenu
 //
-//  Created by 尹现伟 on 15/4/7.
-//  Copyright (c) 2015年 上海美问信息技术有限公司. All rights reserved.
+//  Created by 尹现伟 on 15/5/6.
+//  Copyright (c) 2015年 尹现伟. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@class JEDropDownMenu;
+#define TITLE_BG_IMAGE @"btnbg"
 
-@protocol JEDropDownMenuDelegate <NSObject>
+#define TITLE_IMAGE @"btn_down"
+
+
+@class JEDropDownMenu,JEIndexModel;
+
+@protocol DropDownMenuDelagete <NSObject>
 
 @optional
-- (void)dropDownMenu:(JEDropDownMenu *)menu didSelctedOfTitleIndex:(NSInteger)index;
+//左侧
+- (void)dropDownMenu:(JEDropDownMenu *)menu didSelecedLeftRowAtIndex:(JEIndexModel *)index;
 
-/**
- *  @author 尹现伟, 15-04-07 15:04:29
- *
- *  点击菜单代理
- *
- *  @param menu       菜单对象
- *  @param index      标题索引
- *  @param leftIndex  左侧选项索引
- *  @param rightIndex 右侧选项索引
- *  @param haveLower  是否有第二层选项内容
- *  @param isSeparate 是否有第二层选项
- */
-- (void)dropDownMenu:(JEDropDownMenu *)menu didSelctedOfTitleIndex:(NSInteger)index
-             leftRow:(NSInteger)leftIndex
-            rightRow:(NSInteger)rightIndex
-         isHaveLower:(BOOL)haveLower
-          isSeparate:(BOOL)isSeparate;
+//右侧
+- (void)dropDownMenu:(JEDropDownMenu *)menu didSelecedRightRowAtIndex:(JEIndexModel *)index;
+
 
 @end
 
 
-@protocol JEDropDownMenuDataSouce <NSObject>
-
-- (NSString *)dropDownMenu:(JEDropDownMenu *)menu titleAtIndex:(NSInteger)index;
-
+@protocol DropDownMenuDataSouce <NSObject>
+//MARK: - dataSource
+@required
+//*1. 多少列
 - (NSInteger)numberOfRowDropDownMenu:(JEDropDownMenu *)menu;
 
-//选择数据的行数（左右）
-- (NSInteger)dropDownMenu:(JEDropDownMenu *)menu leftRowAtIndex:(NSInteger)index;
-- (NSInteger)dropDownMenu:(JEDropDownMenu *)menu rightRowAtIndexPath:(NSIndexPath *)indexPath;
+//*3. 某列某个分段下左侧列表数
+- (NSInteger)dropDownMenu:(JEDropDownMenu *)menu leftRowNumAtIndex:(JEIndexModel *)indexModel;
 
-- (NSString *)dropDownMenu:(JEDropDownMenu *)menu leftTitleAtIndexPath:(NSIndexPath *)indexPath;
-- (NSString *)dropDownMenu:(JEDropDownMenu *)menu rightTitleAtIndexPath:(NSIndexPath *)indexPath titleRow:(NSInteger)titleRow;
+//*6. 某列某个分段下左侧列表标题
+- (NSString *)dropDownMenu:(JEDropDownMenu *)menu leftTitleAtIndex:(JEIndexModel *)indexModel;
 
-//某行是否有第二级选项内容
-- (BOOL)leftRowHaveLowerAtTitleIndex:(NSInteger)index leftRow:(NSInteger)leftRow;
+//*9. 按钮标题
+- (NSString *)dropDownMenu:(JEDropDownMenu *)menu titleAtIndex:(NSInteger)index;
 
-//某列是否有第二级选项
-- (BOOL)titltHaveLoswerAtIndex:(NSInteger)index;
+
+@optional
+//2. 某列下有多少分段(>1有效)
+- (NSInteger)segmentedForTitleIndex:(NSInteger)index;
+//9. 分段标题
+- (NSString *)segmentedTitleIndex:(NSInteger)index segIndex:(NSInteger)segIndex;
+//4. 某列某个分段某个左侧行下二级选项数(不实现则为下拉单选列表)
+- (NSInteger)dropDownMenu:(JEDropDownMenu *)menu rightRowNumAtIndex:(JEIndexModel *)indexModel;
+//5. 某列某个分段下左侧列表某行是否有二级选项(此处主要区分有二级选项但无内容和无二级选项(如：全部))(不实现则为下拉单选列表)
+- (BOOL)leftRowIsSelectClick:(JEIndexModel *)indexModel;
+//7. 某列某个分段某个左侧行下二级选项标题
+- (NSString *)dropDownMenu:(JEDropDownMenu *)menu rightTitleAtIndex:(JEIndexModel *)indexModel;
+//8. 某列下是否为单选（一个列表无二级）
+- (BOOL)multipleOptionsAtTitleIndex:(NSInteger)index;
+
 
 @end
 
-@interface JEDropDownMenu : UIView<UITableViewDataSource,UITableViewDelegate>
+@interface JEDropDownMenu : UIView
 
 
-@property (nonatomic, weak) id<JEDropDownMenuDelegate>delegate;
-@property (nonatomic, weak) id<JEDropDownMenuDataSouce>dataSouce;
+@property (nonatomic, assign) id<DropDownMenuDataSouce> dataSouce;
 
-@property (nonatomic, strong) UIImageView *titleBgImageView;
-
-@property (nonatomic, strong) UIImageView *tabBgImageView;
+@property (nonatomic, assign) id<DropDownMenuDelagete> delegate;
 
 @property (nonatomic, strong) UIImageView *bgImageView;
-/*
- 1. 数据源
- 2. 标题列数
- 3. 标题内容
- 3. 左侧分类
- 4. 右侧分类
- 5. 是否分页
- # 代理
- 1. 点击标题
- 2. 点击左侧是否展开数据
- 3. 点击右侧
- 
- */
+@property (nonatomic, strong) UIImageView *titleBgImageView;
+
+
 @end
+
+
+
+
+
+@interface JEIndexModel : NSObject
+
+@property (nonatomic, assign) NSInteger titleIndex;
+@property (nonatomic, assign) NSInteger segmentedIndex;
+@property (nonatomic, assign) NSInteger leftIndex;
+@property (nonatomic, assign) NSInteger rightIndex;
+
++ (instancetype)tIndex:(NSInteger)t segIndex:(NSInteger)s leftIndex:(NSInteger)l rightIndex:(NSInteger)r;
+
+@end
+
+
+@interface  DropDownCell : UITableViewCell
+
+@property (nonatomic, assign) BOOL isSelect;
+
+@end
+
