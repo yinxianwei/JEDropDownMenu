@@ -7,10 +7,11 @@
 
 #import <UIKit/UIKit.h>
 
-#define TITLE_BG_IMAGE @"btnbg"
+#define TITLE_BG_IMAGE @"action_button_bg"
 
 #define TITLE_IMAGE @"btn_down"
 
+#define TITLE_IMAGE_LINE @"image_line_v"
 
 @class JEDropDownMenu,JEIndexModel;
 
@@ -69,8 +70,11 @@
 
 @property (nonatomic, strong) UIImageView *bgImageView;
 @property (nonatomic, strong) UIImageView *titleBgImageView;
+@property (nonatomic, strong) UIImageView *segBgImageView;
 
+- (void)dismiss;
 
+- (void)reloadData;
 @end
 
 

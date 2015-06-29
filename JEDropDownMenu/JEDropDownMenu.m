@@ -46,16 +46,44 @@
 @implementation JEDropDownMenu
 
 
+- (void)reloadData{
+    self.selectArray = [NSMutableArray new];
+    self.segIndexArray = [NSMutableArray new];
+    self.titleSelectIndex = 0;
+    self.leftSelectIndex = 0;
+    self.segmentedIndex = 0;
+    self.segmentedControl.selectedSegmentIndex = 0;
+    
+    [self.leftTableView reloadData];
+    [self.rightTableView reloadData];
+    
+    
+    
+    NSInteger row = [self.dataSouce numberOfRowDropDownMenu:self];
 
+    for (int i = 0; i<row; i++) {
+        UIButton *button = (UIButton *)[self viewWithTag:i+100];
+        [button setTitle:[self.dataSouce dropDownMenu:self titleAtIndex:i] forState:UIControlStateNormal];
+    }
+    
+    //1. 是否漏出分段
+    [self isShowSeg];
+    
+    //2. 是否单选列表
+    //单选代理实现且为yes，右侧二级列表数量
+    [self isRadio];
+}
 
 - (void)willMoveToSuperview:(UIView *)newSuperview{
     
 //添加到父view的时候把需要的view试图放到父view上
-
-    
-    [self initTitle];
-    
-    [self initSubViewsInView:newSuperview];
+    if(newSuperview){
+        
+        [self initTitle];
+        
+        [self initSubViewsInView:newSuperview];
+        
+    }
     
     [super willMoveToSuperview:newSuperview];
     
@@ -76,22 +104,39 @@
     
     
     self.tabBgImageView.frame = CGRectMake(0, -self.bgControl.frame.size.height/3*2, self.bgControl.frame.size.width, self.bgControl.frame.size.height/3*2);
-    _tabBgImageView.backgroundColor = [UIColor whiteColor];
+    _tabBgImageView.backgroundColor = JE_RGBCOLOR(250, 250, 250);
     _tabBgImageView.userInteractionEnabled = YES;
     [self.bgControl addSubview:_tabBgImageView];
 
+    self.segBgImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, self.tabBgImageView.frame.size.width, 40)];
+    self.segBgImageView.userInteractionEnabled = YES;
+    self.segBgImageView.image = [[UIImage imageNamed:@"nav_bg_w"] stretchableImageWithLeftCapWidth:3 topCapHeight:3];
+    [self.tabBgImageView addSubview:self.segBgImageView];
+    
     //TODO://分段选择UI优化
     
     self.segmentedControl = [[UISegmentedControl alloc]initWithItems:@[@" ",@" "]];
-    self.segmentedControl.center = CGPointMake(self.frame.size.width/2, 20);
+    self.segmentedControl.center =self.segBgImageView.center;// CGPointMake(self.frame.size.width/2, 20);
     self.segmentedControl.selectedSegmentIndex = 0;
     [self.segmentedControl addTarget:self action:@selector(segmentedClick:) forControlEvents:UIControlEventValueChanged];
-    [self.tabBgImageView addSubview:self.segmentedControl];
-    
-    self.leftTableView.frame = CGRectMake(0, 0, newSuperview.frame.size.width/3, _tabBgImageView.frame.size.height);    
-    self.rightTableView.frame = CGRectMake(self.leftTableView.frame.size.width, self.leftTableView.frame.origin.y, newSuperview.frame.size.width-self.leftTableView.frame.size.width, self.leftTableView.frame.size.height);
+    self.segmentedControl.backgroundColor = [UIColor whiteColor];
+    self.segmentedControl.clipsToBounds = YES;
+    self.segmentedControl.tintColor= JE_RGBCOLOR(239, 239, 239);
+    self.segmentedControl.layer.cornerRadius = 4;
+    self.segmentedControl.layer.borderWidth = 0.5;
+    self.segmentedControl.layer.borderColor = [JE_RGBCOLOR(215, 216, 217) CGColor];
 
+
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:JE_RGBCOLOR(42, 142, 253),NSForegroundColorAttributeName ,nil];
+    NSDictionary *dic2 = [NSDictionary dictionaryWithObjectsAndKeys:JE_RGBCOLOR(177, 177, 177),NSForegroundColorAttributeName ,nil];
+
+    [self.segmentedControl setTitleTextAttributes:dic forState:UIControlStateSelected];
+    [self.segmentedControl setTitleTextAttributes:dic2 forState:UIControlStateNormal];
     
+    [self.segBgImageView addSubview:self.segmentedControl];
+
+    self.leftTableView.frame = CGRectMake(0, 0, newSuperview.frame.size.width/3, _tabBgImageView.frame.size.height);
+    self.rightTableView.frame = CGRectMake(self.leftTableView.frame.size.width, self.leftTableView.frame.origin.y, newSuperview.frame.size.width-self.leftTableView.frame.size.width, self.leftTableView.frame.size.height);
     
     self.bgControl.hidden = YES;
     if (self.superview) {
@@ -122,6 +167,12 @@
     if (!self.rightTableView.superview) {
         [_tabBgImageView addSubview:self.rightTableView];
         [_tabBgImageView addSubview:self.leftTableView];
+        [_tabBgImageView sendSubviewToBack:self.rightTableView];
+        [_tabBgImageView sendSubviewToBack:self.leftTableView];
+        _leftTableView.dataSource = self;
+        _leftTableView.delegate   = self;
+        _rightTableView.dataSource = self;
+        _rightTableView.delegate   = self;
     }
     
     UIButton *button = (UIButton *)sender;
@@ -255,6 +306,62 @@
     _leftTableView.frame = CGRectMake(_leftTableView.frame.origin.x, _leftTableView.frame.origin.y, width, _leftTableView.frame.size.height);
 }
 
+- (void)isShowSeg{
+    
+    //1. 是否漏出分段
+    if ([self.dataSouce respondsToSelector:@selector(segmentedForTitleIndex:)] ) {
+        int count = (int)[self.dataSouce segmentedForTitleIndex:self.titleSelectIndex];
+        
+        if (count>1) {
+            
+            
+            if (count>self.segmentedControl.numberOfSegments) {
+                for (int i =0 ; i<count - self.segmentedControl.numberOfSegments; i++) {
+                    [self.segmentedControl insertSegmentWithTitle:@" " atIndex:0 animated:NO];
+                }
+                
+            }
+            else if (count<self.segmentedControl.numberOfSegments){
+                for (int i =0 ; i<self.segmentedControl.numberOfSegments - count; i++) {
+                    [self.segmentedControl removeSegmentAtIndex:0 animated:NO];
+                }
+            }
+            
+            for (int i = 0; i<count; i++) {
+                if([self.dataSouce respondsToSelector:@selector(segmentedTitleIndex:segIndex:)]){
+                    [self.segmentedControl setTitle:[self.dataSouce segmentedTitleIndex:self.titleSelectIndex segIndex:i] forSegmentAtIndex:i];
+                    
+                }
+            }
+            self.segmentedControl.bounds = CGRectMake(0, 0, self.frame.size.width/3*2, 30);
+            self.segmentedControl.center = CGPointMake(self.frame.size.width/2, self.segmentedControl.center.y);
+            
+            self.segBgImageView.hidden = NO;
+            [self tabviewFrameyPos:40];
+            
+        }
+        else{
+            self.segBgImageView.hidden = YES;
+            [self tabviewFrameyPos:0];
+        }
+    }
+    else{
+        self.segBgImageView.hidden = YES;
+        [self tabviewFrameyPos:0];
+    }
+    
+}
+
+- (void)isRadio{
+    if ([self.dataSouce respondsToSelector:@selector(multipleOptionsAtTitleIndex:)] && [self.dataSouce multipleOptionsAtTitleIndex:self.titleSelectIndex]) {
+        self.rightTableView.hidden = YES;
+        [self leftTabviewFrameWidth:self.frame.size.width];
+    }
+    else{
+        self.rightTableView.hidden = NO;
+        [self leftTabviewFrameWidth:self.frame.size.width/3 - 2];
+    }
+}
 - (void)showAnimation{
     
     self.bgControl.hidden = NO;
@@ -275,57 +382,12 @@
         
     }];
      //1. 是否漏出分段
-    if ([self.dataSouce respondsToSelector:@selector(segmentedForTitleIndex:)] ) {
-        int count = (int)[self.dataSouce segmentedForTitleIndex:self.titleSelectIndex];
+    [self isShowSeg];
 
-        if (count>1) {
-            
-            
-            if (count>self.segmentedControl.numberOfSegments) {
-                for (int i =0 ; i<count - self.segmentedControl.numberOfSegments; i++) {
-                    [self.segmentedControl insertSegmentWithTitle:@" " atIndex:0 animated:NO];
-                }
-                
-            }
-            else if (count<self.segmentedControl.numberOfSegments){
-                for (int i =0 ; i<self.segmentedControl.numberOfSegments - count; i++) {
-                    [self.segmentedControl removeSegmentAtIndex:0 animated:NO];
-                }
-            }
-            
-            for (int i = 0; i<count; i++) {
-                if([self.dataSouce respondsToSelector:@selector(segmentedTitleIndex:segIndex:)]){
-                    [self.segmentedControl setTitle:[self.dataSouce segmentedTitleIndex:self.titleSelectIndex segIndex:i] forSegmentAtIndex:i];
-                }
-            }
-            self.segmentedControl.bounds = CGRectMake(0, 0, self.frame.size.width/3*2, 30);
-            self.segmentedControl.center = CGPointMake(self.frame.size.width/2, self.segmentedControl.center.y);
-
-            self.segmentedControl.hidden = NO;
-            [self tabviewFrameyPos:40];
-
-        }
-        else{
-            self.segmentedControl.hidden = YES;
-            [self tabviewFrameyPos:0];
-        }
-    }
-    else{
-        self.segmentedControl.hidden = YES;
-       [self tabviewFrameyPos:0];
-    }
     //2. 是否单选列表
     //单选代理实现且为yes，右侧二级列表数量
-    if ([self.dataSouce respondsToSelector:@selector(multipleOptionsAtTitleIndex:)] && [self.dataSouce multipleOptionsAtTitleIndex:self.titleSelectIndex]) {
-        self.rightTableView.hidden = YES;
-        [self leftTabviewFrameWidth:self.frame.size.width];
-    }
-    else{
-        self.rightTableView.hidden = NO;
-        [self leftTabviewFrameWidth:self.frame.size.width/3];
-    }
+    [self isRadio];
     
-    self.tabBgImageView.backgroundColor = [UIColor whiteColor];
 }
 
 
@@ -367,11 +429,16 @@
         [button setImageEdgeInsets:UIEdgeInsetsMake(0, titleWidth - image.size.width, 0, 0)];
         [button setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, image.size.width)];
         button.titleLabel.font = [UIFont systemFontOfSize:15];
-        [button setBackgroundImage:[UIImage imageNamed:TITLE_BG_IMAGE] forState:UIControlStateNormal];
+//        [button setBackgroundImage:[[UIImage imageNamed:TITLE_BG_IMAGE] stretchableImageWithLeftCapWidth:3 topCapHeight:3] forState:UIControlStateNormal];
         
         [button setTitle:[self.dataSouce dropDownMenu:self titleAtIndex:i] forState:UIControlStateNormal];
 
         [self addSubview:button];
+        if (i < row-1) {
+            UIImageView *lineV = [[UIImageView alloc]initWithFrame:CGRectMake(button.frame.size.width+xPos-1, 5, 0.5, titleHeight - 10)];
+            lineV.image = [UIImage imageNamed:TITLE_IMAGE_LINE];
+            [self addSubview:lineV];
+        }
     }
     
 }
@@ -383,11 +450,11 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (tableView == self.leftTableView) {
-        return [self.dataSouce dropDownMenu:self leftRowNumAtIndex:[JEIndexModel tIndex:self.titleSelectIndex segIndex:self.segmentedIndex leftIndex:0 rightIndex:0]];
+        return [self.dataSouce dropDownMenu:self leftRowNumAtIndex:[JEIndexModel tIndex:self.titleSelectIndex segIndex:self.segmentedControl.selectedSegmentIndex leftIndex:0 rightIndex:0]];
     }
     else if (tableView == self.rightTableView){
         if([self.dataSouce respondsToSelector:@selector(dropDownMenu:rightRowNumAtIndex:)]){
-            return [self.dataSouce dropDownMenu:self rightRowNumAtIndex:[JEIndexModel tIndex:self.titleSelectIndex segIndex:self.segmentedIndex leftIndex:self.leftSelectIndex rightIndex:0]];
+            return [self.dataSouce dropDownMenu:self rightRowNumAtIndex:[JEIndexModel tIndex:self.titleSelectIndex segIndex:self.segmentedControl.selectedSegmentIndex leftIndex:self.leftSelectIndex rightIndex:0]];
         }
     }
     return 0;
@@ -487,14 +554,16 @@
        
         if (([self.dataSouce respondsToSelector:@selector(leftRowIsSelectClick:)] && [self.dataSouce leftRowIsSelectClick:indexModel]) || ([self.dataSouce respondsToSelector:@selector(multipleOptionsAtTitleIndex:)] && [self.dataSouce multipleOptionsAtTitleIndex:self.titleSelectIndex])) {
             
+        
+            model.leftIndex = self.leftSelectIndex;
+            model.segmentedIndex = self.segmentedControl.selectedSegmentIndex;
+            indexModel.segmentedIndex  =self.segmentedControl.selectedSegmentIndex;
+            
             //直接调用代理
             if ([self.delegate respondsToSelector:@selector(dropDownMenu:didSelecedLeftRowAtIndex:)]) {
                 [self.delegate dropDownMenu:self didSelecedLeftRowAtIndex:model];
             }
-            model.leftIndex = self.leftSelectIndex;
-            model.segmentedIndex = self.segmentedControl.selectedSegmentIndex;
-
-            indexModel.segmentedIndex  =self.segmentedControl.selectedSegmentIndex;
+            
             NSString *title = [self.dataSouce dropDownMenu:self leftTitleAtIndex:model];
             //  标题切换
             [self setTitle:title withIndex:self.titleSelectIndex];
@@ -555,8 +624,8 @@
 - (UITableView *)leftTableView{
     if (_leftTableView==nil) {
         _leftTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width/[self.dataSouce numberOfRowDropDownMenu:self], 200) style:UITableViewStylePlain];
-        _leftTableView.dataSource = self;
-        _leftTableView.delegate   = self;
+        UIView *headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 1)];
+        _leftTableView.tableHeaderView = headerView;
         [self clearLine2:_leftTableView];
     }
     return _leftTableView;
@@ -565,10 +634,10 @@
 - (UITableView *)rightTableView{
     if (_rightTableView==nil) {
         _rightTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width - self.frame.size.width/[self.dataSouce numberOfRowDropDownMenu:self], 200) style:UITableViewStylePlain];
-        _rightTableView.dataSource = self;
-        _rightTableView.delegate   = self;
+        UIView *headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 1)];
+        _rightTableView.tableHeaderView = headerView;
         [self clearLine2:_rightTableView];
-        _rightTableView.backgroundColor = JE_RGBCOLOR(245, 245, 245);
+//        _rightTableView.backgroundColor = JE_RGBCOLOR(245, 245, 245);
     }
     return _rightTableView;
 }
@@ -637,9 +706,10 @@
 - (void)setIsSelect:(BOOL)isSelect{
     _isSelect = isSelect;
  
-    self.textLabel.textColor = _isSelect ? [UIColor blueColor] : [UIColor blackColor];
-    
+    self.textLabel.textColor = _isSelect ? JE_RGBCOLOR(65, 147, 252) : JE_RGBCOLOR(144, 144, 144);
+    self.backgroundColor = _isSelect ? JE_RGBCOLOR(250, 250, 250) : [UIColor whiteColor];
 }
+
 
 @end
 
