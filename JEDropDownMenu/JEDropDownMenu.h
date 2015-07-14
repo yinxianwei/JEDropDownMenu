@@ -24,6 +24,8 @@
 //右侧
 - (void)dropDownMenu:(JEDropDownMenu *)menu didSelecedRightRowAtIndex:(JEIndexModel *)index;
 
+//标题
+- (void)dropDownMenu:(JEDropDownMenu *)menu didSelecedTitleAtIndex:(NSInteger)index;
 
 @end
 

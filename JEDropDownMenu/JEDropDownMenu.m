@@ -160,10 +160,8 @@
 
 - (void)titleCilck:(id)sender{
 
-    //当无数据时禁止显示下拉菜单
-//    if ([self.dataSouce dropDownMenu:self leftRowNumAtIndex:[JEIndexModel tIndex:self.titleSelectIndex segIndex:self.segmentedControl.selectedSegmentIndex leftIndex:0 rightIndex:0]] == 0) {
-//        return;
-//    }
+
+    
     if (!self.rightTableView.superview) {
         [_tabBgImageView addSubview:self.rightTableView];
         [_tabBgImageView addSubview:self.leftTableView];
@@ -178,9 +176,14 @@
     UIButton *button = (UIButton *)sender;
     NSInteger index = button.tag -100;
     
+    if([self.delegate respondsToSelector:@selector(dropDownMenu:didSelecedTitleAtIndex:)]){
+        [self.delegate dropDownMenu:self didSelecedTitleAtIndex:index];
+    }
+    
     CGAffineTransform transform = button.imageView.transform;
     transform = CGAffineTransformRotate(transform, M_PI);
     
+    [button setTitleColor:JE_RGBCOLOR(65, 147, 252) forState:UIControlStateNormal];
     //重置左侧选择
     self.leftSelectIndex = [self indexTitleIndex:index withSegmendIndex:self.segmentedControl.selectedSegmentIndex].leftIndex;
     self.segmentedIndex = [self indexModelInTitleIndex:index].segmentedIndex;
@@ -191,7 +194,6 @@
 
         [UIView animateWithDuration:0.2 animations:^{
             button.imageView.transform = transform;
-
         }];
         [self showAnimation];
     }
@@ -201,8 +203,9 @@
         //切换
         [UIView animateWithDuration:0.2 animations:^{
             oldBtn.imageView.transform = CGAffineTransformIdentity;
+            [oldBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
             button.imageView.transform = transform;
-            
+
             [self tabBGimageViewFrameyPos:-150];
             
         } completion:^(BOOL finished) {
@@ -397,7 +400,8 @@
     [UIView animateWithDuration:0.2 animations:^{
       
         oldBtn.imageView.transform = CGAffineTransformIdentity;
-        _bgImageView.alpha = 0.0f;
+        [oldBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+_bgImageView.alpha = 0.0f;
 
         [self tabBGimageViewFrameyPos:-self.tabBgImageView.frame.size.height];
 

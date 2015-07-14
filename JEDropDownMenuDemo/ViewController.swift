@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController,DropDownMenuDataSouce,DropDownMenuDelegate {
     
     var reservationArray:NSMutableArray = [];
+    var dropDownMenu:JEDropDownMenu?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +29,17 @@ class ViewController: UIViewController,DropDownMenuDataSouce,DropDownMenuDelegat
         drop.delegate = self;
         self.view.addSubview(drop);
         
-        
+        let homeBtn = UIButton(frame: CGRectMake(self.view.frame.size.width - self.view.frame.size.width/4, 0, self.view.frame.size.width/4, 40))
+        drop.addSubview(homeBtn)
+        homeBtn.setTitle("到家", forState: UIControlState.Normal);
+        homeBtn.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+        homeBtn.backgroundColor = UIColor.whiteColor();
+        homeBtn.addTarget(self, action: "homeClick:", forControlEvents: UIControlEvents.TouchUpInside)
+        self.dropDownMenu = drop
+    }
+    
+    func homeClick(sender:UIButton){
+        self.dropDownMenu?.dismiss()
     }
     func loadData(){
         
@@ -42,7 +53,9 @@ class ViewController: UIViewController,DropDownMenuDataSouce,DropDownMenuDelegat
     }
     
     func dropDownMenu(menu: JEDropDownMenu!, leftRowNumAtIndex indexModel: JEIndexModel!) -> Int {
-        
+        if indexModel.titleIndex == 3{
+            return 0
+        }
         return Int(arc4random()%10+2);
     }
     
@@ -55,10 +68,13 @@ class ViewController: UIViewController,DropDownMenuDataSouce,DropDownMenuDelegat
     }
     
     func dropDownMenu(menu: JEDropDownMenu!, titleAtIndex index: Int) -> String! {
+        if index == 3{
+            return ""
+        }
         return "标题"
     }
     func numberOfRowDropDownMenu(menu: JEDropDownMenu!) -> Int {
-        return 3;
+        return 4;
     }
     
     
